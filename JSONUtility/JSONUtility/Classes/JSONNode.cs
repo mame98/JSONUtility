@@ -69,9 +69,10 @@ namespace JSONUtility.Classes
             }
         }
 
-        public Array getArray()
+        protected string unescape(string input)
         {
-            return null;
+            return input.Replace("\\t", "\t").Replace("\\\\", "\\").Replace("\\\"", "\"").Replace("\\/", "/")
+                .Replace("\\b", "\b").Replace("\\f", "\f").Replace("\\n", "\n").Replace("\\r", "\r");
         }
 
         public dynamic getData()
@@ -83,11 +84,11 @@ namespace JSONUtility.Classes
                 case JSONNodeType.NUMBER:
                     return Convert.ToDouble(this.raw);
                 case JSONNodeType.STRING:
-                    return this.raw.Substring(1, this.raw.Length - 2);
+                    return this.unescape(this.raw.Substring(1, this.raw.Length - 2));
                 case JSONNodeType.OBJECT:
                     return this.children;
                 case JSONNodeType.ARRAY:
-                    return this.getArray();
+                    return this.children;
                 default:
                     return null;
             }

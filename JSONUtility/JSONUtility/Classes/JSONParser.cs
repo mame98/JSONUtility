@@ -39,7 +39,7 @@ namespace JSONUtility.Classes
                  "", System.Text.RegularExpressions.RegexOptions.IgnorePatternWhitespace);
         }
 
-        protected int getMatchingBracketFor(int pos, string str = null)
+        protected int getMatchingBracketFor(int pos, string str = null, char up='{', char down='}')
         {
             int lvl = 1;
 
@@ -50,9 +50,9 @@ namespace JSONUtility.Classes
 
             for (int x = pos + 1; x < str.Length; x++)
             {
-                if (str[x] == '{')
+                if (str[x] == up)
                     lvl++;
-                else if (str[x] == '}')
+                else if (str[x] == down)
                     lvl--;
 
                 if (lvl == 0)
@@ -64,29 +64,77 @@ namespace JSONUtility.Classes
         protected List<int> getSplitPointsForObject(string obj)
         {
             List<int> ret = new List<int>();
-            Console.WriteLine(obj);
-            Console.WriteLine(obj.Length);
+            bool active = true;
             for (int x = 0; x < obj.Length; x++)
             {
 
-                if (obj[x] == '{')
+                if (obj[x] == '{' && active)
                     x = this.getMatchingBracketFor(x, obj);
+
+                if (obj[x] == '[' && active)
+                    x = this.getMatchingBracketFor(x, obj, '[', ']');
+
+                if (obj[x] == '"')
+                {
+                    active = !active;
+                }
 
                 if (x < 0)
                     throw new ArgumentException("Invalid JSON (not sure why)");
 
-                if (obj[x] == ',')
+                if (obj[x] == ',' && active)
                 {
                     ret.Add(x);
                 }
             }
+            if(!active)
+            {
+                throw new ArgumentException("Reached end of file while searching for \" (Invalid JSON) ");
+            }
             return ret;
+        }
+
+        protected JSONNode parseArray(string str, JSONNode parent=null)
+        {
+            int close = this.getMatchingBracketFor(0, str, '[', ']');
+            string substr = str.Substring(1, close - 1);
+
+            List<int> splits = this.getSplitPointsForObject(substr);
+            List<string> items = new List<string>();
+            int last = 0;
+            foreach (int split in splits)
+            {
+                items.Add(substr.Substring(last, split - last));
+                last = split + 1;
+            }
+            items.Add(substr.Substring(last));
+
+
+            for(int x =  0; x < items.Count; x++)
+            {
+                JSONNode node = new JSONNode(parent, x.ToString());
+                node.setRawData(items[x]);
+                JSONNodeType type = node.guessType();
+                if(type == JSONNodeType.OBJECT)
+                {
+                    this.parseObject(node.getRawData(), node);
+                }
+                else if(type == JSONNodeType.ARRAY)
+                {
+                    this.parseArray(node.getRawData(), node);
+                }
+
+                parent.addChild(node);
+            }
+
+
+            return parent;
         }
 
         protected JSONNode parseObject(string str, JSONNode parent=null)
         {
             int close = this.getMatchingBracketFor(0, str);
-            string substr = str.Substring(0 + 1, close - 1);
+            string substr = str.Substring(1, close - 1);
 
             List<int> splits = this.getSplitPointsForObject(substr);
             List<string> pairs = new List<string>();
@@ -107,6 +155,10 @@ namespace JSONUtility.Classes
                 if(type == JSONNodeType.OBJECT)
                 {
                     this.parseObject(node.getRawData(), node);
+                }
+                else if(type == JSONNodeType.ARRAY)
+                {
+                    this.parseArray(node.getRawData(), node);
                 }
                 parent.addChild(node);
             }
