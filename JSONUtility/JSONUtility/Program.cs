@@ -15,7 +15,7 @@ namespace JSONUtility
             "\t\"first\": {" + Environment.NewLine +
             "\t\t\"answer\": 42," + Environment.NewLine +
             "\t\t\"pi\": 3.14," + Environment.NewLine +
-            "\t\t\"array\": [1,2,3,4,5, { \"name\": \"Anonymus Person\", \"age\": 42, \"subobject\": {\"a\": \"A Value\", \"b\": -1.124E-2} }  ,7,8, 9, 100]" + Environment.NewLine +
+            "\t\t\"array\": [1,2,3,4,5, { \"name\": \"Anonymus Person\", \"age\": 42, \"subobject\": {\"a\": \"A Value\", \"b\": -1.124E-2} }  ,7,8, 9, 100, [1,2,3,[4,5,6]]]" + Environment.NewLine +
             "\t}," + Environment.NewLine +
             "\t\"one More\": \"Hello \\\"Nice\\\" World!\"," + Environment.NewLine +
             "\t\"last Child\": {" + Environment.NewLine +
@@ -23,7 +23,8 @@ namespace JSONUtility
             "\t\t\"betterPI\": 3.141," + Environment.NewLine +
             "\t\t\"sub\": {" + Environment.NewLine +
             "\t\t\t\"name\": \"e\"," + Environment.NewLine +
-            "\t\t\t\"value\": 2.71828" + Environment.NewLine +
+            "\t\t\t\"value\": 2.71828," + Environment.NewLine +
+            "\t\t\t\"usefull\": true" + Environment.NewLine +
             "\t\t}" + Environment.NewLine +
             "\t}" + Environment.NewLine +
             "}";

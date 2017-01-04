@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace JSONUtility.Classes
 {
-    class JSONParser
+    public class JSONParser
     {
         protected string data;
 

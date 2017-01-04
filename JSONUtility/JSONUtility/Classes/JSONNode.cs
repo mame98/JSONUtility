@@ -21,9 +21,8 @@ namespace JSONUtility.Classes
     }
 
     [DebuggerDisplay("{ToString()}")]
-    class JSONNode
+    public class JSONNode
     {
-        public bool primitive = false;
         public List<JSONNode> children = new List<JSONNode>();
         public string name;
         public JSONNode parent;
@@ -75,12 +74,14 @@ namespace JSONUtility.Classes
                 .Replace("\\b", "\b").Replace("\\f", "\f").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\\"", "\"");
         }
 
-        public dynamic getData()
+        public dynamic getData(JSONNodeType type=JSONNodeType.ROOT)
         {
-            switch (this.guessType())
+            if (type == JSONNodeType.ROOT)
+                type = this.guessType();
+            switch (type)
             {
                 case JSONNodeType.BOOL:
-                    return this.raw == "true";
+                    return bool.Parse(this.raw);
                 case JSONNodeType.NUMBER:
                     return double.Parse(this.raw, System.Globalization.CultureInfo.InvariantCulture);
                 case JSONNodeType.STRING:
@@ -153,6 +154,25 @@ namespace JSONUtility.Classes
         public void dumpAllToConsole(bool colors = false)
         {
             this.dumper(0, this, colors);
+        }
+
+        public JSONNode getChildByName(string name)
+        {
+            foreach(JSONNode child in this.children)
+            {
+                if (child.getName() == name)
+                    return child;
+            }
+            return null;
+        }
+
+        public dynamic getChildValue(string name)
+        {
+            JSONNode child = this.getChildByName(name);
+            if (child == null)
+                return null;
+            else
+                return child.getData();
         }
     }
 }
