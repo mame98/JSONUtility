@@ -111,7 +111,7 @@ namespace JSONUtility.Classes
                 parent.addChild(node);
             }
 
-            return null;
+            return parent;
         }
 
         public JSONNode parse()

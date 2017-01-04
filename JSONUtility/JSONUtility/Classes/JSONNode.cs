@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 
 namespace JSONUtility.Classes
@@ -15,9 +16,11 @@ namespace JSONUtility.Classes
         STRING,
         NUMBER,
         BOOL,
-        NULL
+        NULL,
+        ROOT
     }
 
+    [DebuggerDisplay("{ToString()}")]
     class JSONNode
     {
         public bool primitive = false;
@@ -25,7 +28,7 @@ namespace JSONUtility.Classes
         public string name;
         public JSONNode parent;
 
-        protected string raw;
+        protected string raw = null;
 
         public JSONNode(JSONNode parent, string name)
         {
@@ -45,6 +48,9 @@ namespace JSONUtility.Classes
 
         public JSONNodeType guessType()
         {
+            if (this.raw == null)
+                return JSONNodeType.ROOT;
+
             switch(this.raw[0])
             {
                 case '"':
@@ -90,6 +96,19 @@ namespace JSONUtility.Classes
         public void addChild(JSONNode child)
         {
             this.children.Add(child);
+        }
+
+        public string getName()
+        {
+            if (this.name[0] == '"')
+                return this.name.Substring(1, this.name.Length - 2);
+            else
+                return this.name;
+        }
+
+        public override string ToString()
+        {
+            return "JSON Node (" + this.getName() + ") [" + this.guessType().ToString() + "]";
         }
     }
 }
