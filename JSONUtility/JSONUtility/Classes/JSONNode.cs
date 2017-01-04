@@ -51,7 +51,7 @@ namespace JSONUtility.Classes
             if (this.raw == null)
                 return JSONNodeType.ROOT;
 
-            switch(this.raw[0])
+            switch (this.raw[0])
             {
                 case '"':
                     return JSONNodeType.STRING;
@@ -72,17 +72,17 @@ namespace JSONUtility.Classes
         protected string unescape(string input)
         {
             return input.Replace("\\t", "\t").Replace("\\\\", "\\").Replace("\\\"", "\"").Replace("\\/", "/")
-                .Replace("\\b", "\b").Replace("\\f", "\f").Replace("\\n", "\n").Replace("\\r", "\r");
+                .Replace("\\b", "\b").Replace("\\f", "\f").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\\"", "\"");
         }
 
         public dynamic getData()
         {
-            switch(this.guessType())
+            switch (this.guessType())
             {
                 case JSONNodeType.BOOL:
                     return this.raw == "true";
                 case JSONNodeType.NUMBER:
-                    return Convert.ToDouble(this.raw);
+                    return double.Parse(this.raw, System.Globalization.CultureInfo.InvariantCulture);
                 case JSONNodeType.STRING:
                     return this.unescape(this.raw.Substring(1, this.raw.Length - 2));
                 case JSONNodeType.OBJECT:
@@ -109,7 +109,50 @@ namespace JSONUtility.Classes
 
         public override string ToString()
         {
-            return "JSON Node (" + this.getName() + ") [" + this.guessType().ToString() + "]";
+            return "JSON Node (" + this.getName() + ") <" + this.guessType().ToString() + ">";
+        }
+
+        protected void dumper(int lvl, JSONNode node, bool color)
+        {
+            string prefix = " ";
+            for (int x = 0; x < lvl; x++)
+            {
+                prefix = " - " + prefix;
+            }
+
+            if (color)
+                Console.ForegroundColor = ConsoleColor.Gray;
+
+            Console.Write(prefix);
+
+            if (color)
+                Console.ForegroundColor = ConsoleColor.Cyan;
+
+            Console.Write(node.name + ": ");
+
+
+
+            if (node.guessType() != JSONNodeType.ARRAY && node.guessType() != JSONNodeType.OBJECT)
+            {
+                if (color)
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                Console.Write("" + node.getData());
+            }
+
+            if (color)
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+
+            Console.WriteLine(" <" + node.guessType().ToString().ToLower() + ">");
+
+
+            foreach (JSONNode n in node.children)
+                dumper(lvl + 1, n, color);
+        }
+
+        public void dumpAllToConsole(bool colors = false)
+        {
+            this.dumper(0, this, colors);
         }
     }
 }

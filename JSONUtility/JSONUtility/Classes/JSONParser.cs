@@ -76,6 +76,9 @@ namespace JSONUtility.Classes
 
                 if (obj[x] == '"')
                 {
+                    if (x - 1 >= 0)
+                        if (obj[x - 1] == '\\')
+                            active = !active;
                     active = !active;
                 }
 
@@ -174,7 +177,7 @@ namespace JSONUtility.Classes
                 throw new ArgumentException("The given JSON is not valid (missing '{')", "data/filename");
             }
 
-            JSONNode root = new JSONNode(null, "root");
+            JSONNode root = new JSONNode(null, "JSON");
             return this.parseObject(this.data, root);
         }
     }
